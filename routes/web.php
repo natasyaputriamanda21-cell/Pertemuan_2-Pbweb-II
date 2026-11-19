@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use Inertia\Inertia;
 use App\Http\Controllers\BookController;
-
+use App\Http\Controllers\MemberController;
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/', function () {
@@ -30,7 +30,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
 Route::middleware(['auth'])->group(function(){
- Route::resource('books', BookController::class);
+    Route::resource('books', BookController::class);
+    Route::resource('members', MemberController::class);// baris baru: 7 alamat CRUD untuk  anggota
+  
 
 
 }) ;  

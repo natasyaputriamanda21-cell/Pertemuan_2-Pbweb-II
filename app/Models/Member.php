@@ -13,7 +13,7 @@ class Member extends Model
         'nama',
         'nis_nim',
         'no_hp',
-        'alamat',
+        'foto',
     ];
 
     public function loans()
