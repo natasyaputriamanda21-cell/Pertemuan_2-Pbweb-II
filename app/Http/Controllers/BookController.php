@@ -13,9 +13,11 @@ class BookController extends Controller
         $search = $request->input('search');
 
         $books = Book::when($search, function ($query, $search) {
-            $query->where('kode_buku', 'like', "%{$search}%")
-                ->orWhere('judul', 'like', "%{$search}%")
-                ->orWhere('pengarang', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('kode_buku', 'like', "%{$search}%")
+                    ->orWhere('judul', 'like', "%{$search}%")
+                    ->orWhere('pengarang', 'like', "%{$search}%");
+            });
         })->paginate(10)->withQueryString();
 
         return Inertia::render('Books/Index', [
@@ -23,6 +25,50 @@ class BookController extends Controller
             'search' => $search,
         ]);
     }
+
+    /**
+     * Endpoint JSON untuk live search buku.
+     */
+    public function search(Request $request)
+    {
+        // Mengambil kata kunci dari parameter q
+        $kataKunci = $request->query('q', '');
+
+        // Mencari berdasarkan kode buku, judul, atau pengarang
+        $books = Book::where(function ($query) use ($kataKunci) {
+            $query->where('kode_buku', 'like', "%{$kataKunci}%")
+                ->orWhere('judul', 'like', "%{$kataKunci}%")
+                ->orWhere('pengarang', 'like', "%{$kataKunci}%")
+                ->orWhere('penerbit', 'like', "%{$kataKunci}%");
+        })
+            ->latest()
+            ->limit(10)
+            ->get([
+                'id',
+                'kode_buku',
+                'judul',
+                'pengarang',
+                'Penerbit',
+                'stok'
+            ]);
+
+        // Mengembalikan hasil pencarian dalam bentuk JSON
+        return response()->json($books);
+    }
+    /**
+ * Endpoint JSON untuk memeriksa ketersediaan kode buku.
+ */
+public function cekKode(Request $request)
+{
+    $kode = $request->query('kode_buku', '');
+
+    $sudahDipakai = Book::where('kode_buku', $kode)
+        ->exists();
+
+    return response()->json([
+        'tersedia' => ! $sudahDipakai,
+    ]);
+}
 
     public function create()
     {
