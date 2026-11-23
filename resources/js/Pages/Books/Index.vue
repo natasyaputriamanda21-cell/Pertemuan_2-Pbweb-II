@@ -1,6 +1,6 @@
 
 <script setup>
-// Mengambil layout dashboard yang sudah dibuat pada Pertemuan 5
+// Mengambil layout dashboard yang sudah dibuat pada Pertemuan 5 (lengkap dengan Sidebar)
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Link, router } from '@inertiajs/vue3';
 import { ref, computed, watch, onBeforeUnmount } from 'vue';
@@ -17,9 +17,9 @@ const keyword = ref(props.search ?? '');
 // Hasil pencarian dari server
 const hasilCari = ref(null);
 const sedangMencari = ref(false);
-const pesanError = ref('');
+const pesanError = '';
 
-// Timer debounce dan pembatal permintaan
+// Timer untuk debounce dan pembatal permintaan Axios
 let timer = null;
 let permintaan = null;
 
@@ -28,6 +28,7 @@ const daftarBuku = computed(() => hasilCari.value ?? props.books.data);
 
 // Mengirim permintaan AJAX ke /books/search
 async function ambilHasil() {
+    // Batalkan permintaan sebelumnya
     if (permintaan) {
         permintaan.abort();
     }
@@ -45,9 +46,8 @@ async function ambilHasil() {
 
         hasilCari.value = respons.data;
         sedangMencari.value = false;
-
     } catch (error) {
-        if (axios.isCancel(error) || error.code === 'ERR_CANCELED') {
+        if (axios.isCancel(error)) {
             return;
         }
 
@@ -56,11 +56,10 @@ async function ambilHasil() {
     }
 }
 
-// Dijalankan setiap kali isi kotak pencarian berubah
+// Pencarian otomatis setiap kali isi kotak pencarian berubah
 watch(keyword, (nilai) => {
     clearTimeout(timer);
 
-    // Jika kotak pencarian dikosongkan
     if (nilai.trim() === '') {
         if (permintaan) {
             permintaan.abort();
@@ -72,11 +71,10 @@ watch(keyword, (nilai) => {
         return;
     }
 
-    // Tunggu 300 milidetik setelah pengguna berhenti mengetik
     timer = setTimeout(ambilHasil, 300);
 });
 
-// Menghapus buku
+// Function hapus buku
 function hapus(id) {
     if (confirm('Yakin ingin menghapus buku ini?')) {
         router.delete(route('books.destroy', id), {
@@ -89,7 +87,7 @@ function hapus(id) {
     }
 }
 
-// Menghentikan timer dan permintaan saat halaman ditinggalkan
+// Saat halaman ditinggalkan
 onBeforeUnmount(() => {
     clearTimeout(timer);
 
@@ -101,76 +99,116 @@ onBeforeUnmount(() => {
 
 <template>
     <AuthenticatedLayout>
-        <h1>Data Buku</h1>
+        <div class="p-4">
+            <h1 class="text-xl font-bold">Data Buku</h1>
 
-        <!-- Flash message -->
-        <div
-            v-if="$page.props.flash.success"
-            class="alert alert-success"
-            style="color: red; margin-bottom: 10px;"
-        >
-            {{ $page.props.flash.success }}
+            <!-- Flash message -->
+            <div v-if="$page.props.flash.success" class="my-2 text-green-700">
+                {{ $page.props.flash.success }}
+            </div>
+
+            <div class="my-3 flex items-center gap-3">
+                <!-- Tombol tambah buku -->
+                <Link href="/books/create">
+                    + Tambah Buku
+                </Link>
+
+                <!-- Pencarian buku -->
+                <input
+                    v-model="keyword"
+                    type="text"
+                    placeholder="Ketik judul atau pengarang..."
+                >
+
+                <!-- Status pencarian -->
+                <span v-if="sedangMencari" class="text-gray-500">
+                    Mencari...
+                </span>
+            </div>
+
+            <!-- Pesan error -->
+            <div v-if="pesanError" class="my-2 text-red-600">
+                {{ pesanError }}
+            </div>
+
+            <!-- Tabel buku -->
+            <table class="border-collapse">
+                <thead>
+                    <tr>
+                        <th class="border px-3 py-2">Kode</th>
+                        <th class="border px-3 py-2">Judul</th>
+                        <th class="border px-3 py-2">Pengarang</th>
+                        <th class="border px-3 py-2">Stok</th>
+                        <th class="border px-3 py-2">Aksi</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr
+                        v-for="book in daftarBuku"
+                        :key="book.id"
+                    >
+                        <td class="border px-3 py-2">
+                            {{ book.kode_buku }}
+                        </td>
+
+                        <td class="border px-3 py-2">
+                            {{ book.judul }}
+                        </td>
+
+                        <td class="border px-3 py-2">
+                            {{ book.pengarang }}
+                        </td>
+
+                        <td class="border px-3 py-2">
+                            {{ book.stok }}
+                        </td>
+
+                        <td class="border px-3 py-2">
+                            <Link
+                                :href="`/books/${book.id}/edit`"
+                                class="mr-3"
+                            >
+                                Edit
+                            </Link>
+
+                            <button @click="hapus(book.id)">
+                                Hapus
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Jika data tidak ditemukan -->
+                    <tr v-if="daftarBuku.length === 0">
+                        <td colspan="5" class="border px-3 py-2">
+                            Tidak ada data yang ditemukan.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div
+                v-if="hasilCari === null"
+                class="mt-3 flex gap-3"
+            >
+                <template
+                    v-for="link in books.links"
+                    :key="link.label"
+                >
+                    <Link
+                        v-if="link.url"
+                        :href="link.url"
+                        v-html="link.label"
+                    />
+
+                    <span
+                        v-else
+                        v-html="link.label"
+                        class="text-gray-400"
+                    />
+                </template>
+            </div>
         </div>
-
-        <!-- Link menuju form tambah buku -->
-        <Link href="/books/create">+ Tambah Buku</Link>
-
-        <!-- Kotak pencarian -->
-        <input
-            v-model="keyword"
-            type="text"
-            placeholder="Ketik judul atau pengarang atau penerbit..."
-        >
-
-        <!-- Penanda pencarian -->
-        <span v-if="sedangMencari">
-            Mencari...
-        </span>
-
-        <!-- Pesan jika pencarian gagal -->
-        <p v-if="pesanError">
-            {{ pesanError }}
-        </p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Kode</th>
-                    <th>Judul</th>
-                    <th>Pengarang</th>
-                    <th>Stok</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <!-- Menampilkan daftar buku -->
-                <tr v-for="book in daftarBuku" :key="book.id">
-                    <td>{{ book.kode_buku }}</td>
-                    <td>{{ book.judul }}</td>
-                    <td>{{ book.pengarang }}</td>
-                    <td>{{ book.stok }}</td>
-
-                    <td>
-                        <!-- Link edit buku -->
-                        <Link :href="`/books/${book.id}/edit`">
-                            Edit
-                        </Link>
-
-                        <!-- Tombol hapus buku -->
-                        <button @click="hapus(book.id)">
-                            Hapus
-                        </button>
-                    </td>
-                </tr>
-
-                <!-- Pesan jika tidak ada data -->
-                <tr v-if="daftarBuku.length === 0">
-                    <td colspan="5">
-                        Tidak ada buku yang ditemukan.
-                    </td>
-                </tr>
-            </tbody>
-        </table>
     </AuthenticatedLayout>
 </template>

@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use Inertia\Inertia;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\LoanController;
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/', function () {
@@ -45,6 +46,8 @@ Route::middleware(['auth'])->group(function(){
 
     Route::resource('books', BookController::class);
     Route::resource('members', MemberController::class);// baris baru: 7 alamat CRUD untuk  anggota
+    Route::resource('loans', LoanController::class)
+    ->only(['index', 'create', 'store']);
   
 
 

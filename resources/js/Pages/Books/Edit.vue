@@ -1,21 +1,23 @@
-
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { useForm } from '@inertiajs/vue3';
 
+// Mengambil data buku dari BookController
 const props = defineProps({
     book: Object,
 });
 
+// Mengisi form dengan data buku yang lama
 const form = useForm({
-    kode_buku: props.book.kode_buku ?? '',
-    judul: props.book.judul ?? '',
-    pengarang: props.book.pengarang ?? '',
-    penerbit: props.book.penerbit ?? '',
-    tahun: props.book.tahun ?? '',
-    stok: props.book.stok ?? 0,
+    kode_buku: props.book.kode_buku,
+    judul: props.book.judul,
+    pengarang: props.book.pengarang,
+    penerbit: props.book.penerbit,
+    tahun: props.book.tahun,
+    stok: props.book.stok,
 });
 
+// Fungsi menyimpan perubahan buku
 function submit() {
     form.put(route('books.update', props.book.id));
 }
@@ -23,69 +25,120 @@ function submit() {
 
 <template>
     <AuthenticatedLayout>
-        <div class="p-5">
-            <h2 class="mb-5 text-base font-semibold text-gray-900">
+        <div class="p-4">
+
+            <h1 class="text-xl font-bold">
                 Edit Buku
-            </h2>
+            </h1>
 
-            <form @submit.prevent="submit">
-                <div class="flex items-end gap-2">
-                    <div class="min-w-0 flex-1">
-                        <label class="mb-2 block text-sm text-gray-900">
-                            Kode Buku
-                        </label>
-                        <input v-model="form.kode_buku" type="text"
-                            class="w-full rounded border border-gray-300 px-2 py-2">
-                        <p v-if="form.errors.kode_buku" class="text-xs text-red-600">
-                            {{ form.errors.kode_buku }}
-                        </p>
-                    </div>
+            <form
+                @submit.prevent="submit"
+                class="mt-3 space-y-3"
+            >
 
-                    <div class="min-w-0 flex-1">
-                        <label class="mb-2 block text-sm text-gray-900">
-                            Judul
-                        </label>
-                        <input v-model="form.judul" type="text"
-                            class="w-full rounded border border-gray-300 px-2 py-2">
-                    </div>
+                <div>
+                    <label class="block">Kode Buku</label>
 
-                    <div class="min-w-0 flex-1">
-                        <label class="mb-2 block text-sm text-gray-900">
-                            Pengarang
-                        </label>
-                        <input v-model="form.pengarang" type="text"
-                            class="w-full rounded border border-gray-300 px-2 py-2">
-                    </div>
+                    <input
+                        v-model="form.kode_buku"
+                        type="text"
+                    >
 
-                    <div class="min-w-0 flex-1">
-                        <label class="mb-2 block text-sm text-gray-900">
-                            Penerbit
-                        </label>
-                        <input v-model="form.penerbit" type="text"
-                            class="w-full rounded border border-gray-300 px-2 py-2">
+                    <div
+                        v-if="form.errors.kode_buku"
+                        class="text-red-600"
+                    >
+                        {{ form.errors.kode_buku }}
                     </div>
-
-                    <div class="min-w-0 flex-1">
-                        <label class="mb-2 block text-sm text-gray-900">
-                            Tahun
-                        </label>
-                        <input v-model="form.tahun" type="number"
-                            class="w-full rounded border border-gray-300 px-2 py-2">
-                    </div>
-
-                    <div class="min-w-0 flex-1">
-                        <label class="mb-2 block text-sm text-gray-900">
-                            Stok
-                        </label>
-                        <input v-model="form.stok" type="number"
-                            class="w-full rounded border border-gray-300 px-2 py-2">
-                    </div>
-
-                    <div class="shrink-0">
-                       
-                    </div>
-                    <button type="submit">Simpan Perubahan</button>
                 </div>
+
+                <div>
+                    <label class="block">Judul</label>
+
+                    <input
+                        v-model="form.judul"
+                        type="text"
+                    >
+
+                    <div
+                        v-if="form.errors.judul"
+                        class="text-red-600"
+                    >
+                        {{ form.errors.judul }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block">Pengarang</label>
+
+                    <input
+                        v-model="form.pengarang"
+                        type="text"
+                    >
+
+                    <div
+                        v-if="form.errors.pengarang"
+                        class="text-red-600"
+                    >
+                        {{ form.errors.pengarang }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block">Penerbit</label>
+
+                    <input
+                        v-model="form.penerbit"
+                        type="text"
+                    >
+
+                    <div
+                        v-if="form.errors.penerbit"
+                        class="text-red-600"
+                    >
+                        {{ form.errors.penerbit }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block">Tahun</label>
+
+                    <input
+                        v-model="form.tahun"
+                        type="text"
+                    >
+
+                    <div
+                        v-if="form.errors.tahun"
+                        class="text-red-600"
+                    >
+                        {{ form.errors.tahun }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block">Stok</label>
+
+                    <input
+                        v-model="form.stok"
+                        type="number"
+                    >
+
+                    <div
+                        v-if="form.errors.stok"
+                        class="text-red-600"
+                    >
+                        {{ form.errors.stok }}
+                    </div>
+                </div>
+
+                <button
+                    type="submit"
+                    :disabled="form.processing"
+                >
+                    Simpan Perubahan
+                </button>
+
             </form>
         </div>
     </AuthenticatedLayout>
