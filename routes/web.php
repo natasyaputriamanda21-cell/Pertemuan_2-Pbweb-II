@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\LoanController;
+use App\Http\Controllers\DashboardController; 
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/', function () {
@@ -20,9 +21,8 @@ Route::get('/', function () {
 });
 
 Route::get('/tentang', [HomeController::class, 'tentang']);
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index']) 
+->middleware(['auth', 'verified']) ->name('dashboard');
 
 Route::get('/kontak', [HomeController::class, 'kontak']);
 Route::middleware('auth')->group(function () {
@@ -48,6 +48,11 @@ Route::middleware(['auth'])->group(function(){
     Route::resource('members', MemberController::class);// baris baru: 7 alamat CRUD untuk  anggota
     Route::resource('loans', LoanController::class)
     ->only(['index', 'create', 'store']);
+    Route::patch(
+        'loans/{loan}/kembalikan',
+        [LoanController::class, 'kembalikan']
+    )->name('loans.kembalikan');
+
   
 
 

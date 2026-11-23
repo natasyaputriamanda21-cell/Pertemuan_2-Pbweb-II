@@ -105,4 +105,56 @@ if ($jumlahPinjaman >= 3) {
         return redirect()->route('loans.index')
             ->with('success', 'Peminjaman berhasil disimpan. Stok buku berkurang 1.');
     }
+    /**
+ * Memproses pengembalian buku dan menghitung denda.
+ */
+public function kembalikan(Loan $loan)
+{
+    // 1. Memeriksa apakah buku sudah dikembalikan.
+    if ($loan->status === 'dikembalikan') {
+
+        // Jika sudah, proses ditolak.
+        return back()->withErrors([
+            'loan' => 'Buku ini sudah dikembalikan sebelumnya.',
+        ]);
+    }
+
+    // 2. Menghitung keterlambatan sebelum data diubah.
+    $hariTerlambat = $loan->hari_terlambat;
+
+    // Mengambil jumlah denda.
+    $denda = $loan->perkiraan_denda;
+
+    // 3. Menjalankan perubahan secara bersamaan.
+    DB::transaction(function () use ($loan, $denda) {
+
+        // Mengubah status menjadi dikembalikan.
+        $loan->update([
+            'status' => 'dikembalikan',
+
+            // Mencatat tanggal pengembalian.
+            'tanggal_kembali' => today()->toDateString(),
+
+            // Menyimpan jumlah denda.
+            'denda' => $denda,
+        ]);
+
+        // Menambahkan stok buku sebanyak satu.
+        $loan->book->increment('stok');
+
+    });
+
+    // 4. Membuat pesan keberhasilan.
+    $pesan = 'Buku berhasil dikembalikan. Stok buku bertambah 1.';
+
+    // Jika terlambat, tambahkan informasi denda.
+    if ($denda > 0) {
+
+        $pesan .= ' Terlambat '.$hariTerlambat.' Hari, denda Rp'
+            .number_format($denda, 0, ',', '.').'.';
+    }
+
+    // 5. Kembali ke halaman sebelumnya.
+    return back()->with('success', $pesan);
+}
 }
