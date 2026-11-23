@@ -45,6 +45,13 @@ class DashboardController extends Controller
         // Menghitung seluruh denda.
         $totalDenda = (int) Loan::sum('denda');
 
+        // TUGAS MANDIRI NOMOR 2
+        // Menghitung jumlah peminjaman hari ini.
+        $peminjamanHariIni = Loan::where(
+            'tanggal_pinjam',
+            today()->toDateString()
+        )->count();
+
         // Daftar nama bulan.
         $namaBulan = [
             'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
@@ -99,6 +106,10 @@ class DashboardController extends Controller
                 'terlambat' => $terlambat,
 
                 'total_denda' => $totalDenda,
+
+                // TUGAS MANDIRI NOMOR 2
+                // Mengirim jumlah peminjaman hari ini.
+                'peminjaman_hari_ini' => $peminjamanHariIni,
 
             ],
 

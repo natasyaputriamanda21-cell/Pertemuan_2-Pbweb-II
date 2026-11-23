@@ -1,3 +1,4 @@
+
 <script setup>
 
 // Mengambil layout utama.
@@ -47,8 +48,8 @@ function formatRupiah(angka) {
 
         <div class="p-4">
 
-            <!-- Susunan empat kartu -->
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <!-- Susunan lima kartu -->
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
 
                 <!-- KARTU 1: JUMLAH BUKU -->
                 <div
@@ -129,6 +130,25 @@ function formatRupiah(angka) {
 
                     <div class="text-xs text-gray-500">
                         Dari buku yang sudah dikembalikan
+                    </div>
+
+                </div>
+
+                <!-- KARTU 5: PEMINJAMAN HARI INI -->
+                <div
+                    class="rounded-lg border-l-4 border-blue-500 bg-white p-5 shadow-sm"
+                >
+
+                    <div class="text-sm text-gray-500">
+                        Peminjaman Hari Ini
+                    </div>
+
+                    <div class="text-3xl font-bold text-blue-600">
+                        {{ statistik.peminjaman_hari_ini }}
+                    </div>
+
+                    <div class="text-xs text-gray-500">
+                        Jumlah peminjaman hari ini
                     </div>
 
                 </div>
